@@ -32,7 +32,7 @@ Installation
 To run this project locally, follow the steps below:
 
 1. Clone the repository:
-    git clone https://github.com/yourusername/weather-app.git
+    git clone https://github.com/k1aShiMa/weather-app.git
     cd weather-app
 
 2. Install dependencies (if you are using Node.js server):
