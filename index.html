@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Weather App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
+    <style>
+        .weather-icon {
+            font-size: 48px;
+            color: #0077be;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Check Current Weather by City Name</h2>
+
+    <input type="text" id="cityInput" placeholder="Enter city name (e.g. Budapest)">
+    <button id="getWeather" type="button">Get Weather</button>
+    <button id="getFavoriteWeather" type="button">Favorite City Weather</button>
+
+    <div id="weatherResult" style="margin-top: 20px;"></div>
+
+    <script>
+        // XSS protection: Sanitize user input to prevent XSS attacks
+        function sanitize(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML; // Clear HTML tags
+        }
+
+        const weatherIcons = {
+            0: "wi-day-sunny",
+            1: "wi-day-sunny-overcast",
+            2: "wi-day-cloudy",
+            3: "wi-cloudy",
+            45: "wi-fog",
+            48: "wi-fog",
+            51: "wi-sprinkle",
+            53: "wi-sprinkle",
+            55: "wi-sprinkle",
+            61: "wi-rain",
+            63: "wi-rain",
+            65: "wi-rain",
+            71: "wi-snow",
+            73: "wi-snow",
+            75: "wi-snow",
+            80: "wi-showers",
+            81: "wi-showers",
+            82: "wi-showers",
+            95: "wi-thunderstorm",
+            96: "wi-thunderstorm",
+            99: "wi-thunderstorm"
+        };
+
+        document.getElementById("getWeather").addEventListener("click", async function () {
+            const result = document.getElementById("weatherResult");
+            const city = document.getElementById("cityInput").value.trim();
+
+            if (!city) {
+                alert("Please enter a city name.");
+                return;
+            }
+
+            result.innerHTML = `<img src="ajax_loader.gif" alt="Loading..."> <p>Fetching coordinates...</p>`;
+
+            const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}`;
+
+            try {
+                const geoResponse = await fetch(geoUrl);
+
+                if (!geoResponse.ok) {
+                    throw new Error(`Error getting coordinates. Status: ${geoResponse.status}`);
+                }
+
+                const geoData = await geoResponse.json();
+
+                if (!geoData.results || geoData.results.length === 0) {
+                    result.innerHTML = `<p style="color:red;">City not found.</p>`;
+                    return;
+                }
+
+                const location = geoData.results[0];
+
+                await getWeather(location.latitude, location.longitude, sanitize(location.name)); //Clear city name
+
+            } catch (error) {
+                console.error(error);
+                result.innerHTML = `<p style="color:red;">${error.message}</p>`;
+            }
+        });
+
+        async function getWeather(lat, lon, cityName) {
+            const result = document.getElementById("weatherResult");
+            result.innerHTML = `<img src="ajax_loader.gif" alt="Loading..."> <p>Fetching weather...</p>`;
+
+            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+
+            try {
+                const weatherResponse = await fetch(weatherUrl);
+
+                if (!weatherResponse.ok) {
+                    throw new Error(`Error getting weather. Status: ${weatherResponse.status}`);
+                }
+
+                const weatherData = await weatherResponse.json();
+                const w = weatherData.current_weather;
+
+                const iconClass = weatherIcons[w.weathercode] || "wi-na";
+
+                const sanitizedCityName = sanitize(cityName); //Clear city name
+
+                const output = `
+                    <h3>Current Weather in ${sanitizedCityName}</h3>
+                    <i class="wi ${iconClass} weather-icon"></i>
+                    <ul>
+                        <li>Temperature: ${w.temperature} °C</li>
+                        <li>Wind Speed: ${w.windspeed} km/h</li>
+                        <li>Time: ${w.time}</li>
+                        <li>Weather Code: ${w.weathercode}</li>
+                    </ul>
+                    <button id="addToFavorites">Add to Favourites</button>
+                `;
+
+                result.innerHTML = output;
+
+                // Add to favorites button click
+                document.getElementById("addToFavorites").addEventListener("click", function () {
+                    localStorage.setItem("favoriteCity", sanitizedCityName);
+                    alert(`${sanitizedCityName} has been added to favorites!`);
+                    document.getElementById("getFavoriteWeather").style.display = 'block'; // Show add to favs button
+                });
+
+                // Hide add to favs button if favorite city
+                const favoriteCity = localStorage.getItem("favoriteCity");
+                if (favoriteCity && favoriteCity === sanitizedCityName) {
+                    document.getElementById("addToFavorites").style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error(error);
+                result.innerHTML = `<p style="color:red;">${error.message}</p>`;
+            }
+        }
+
+        // Fav city button click
+        document.getElementById("getFavoriteWeather").addEventListener("click", function () {
+            const favoriteCity = localStorage.getItem("favoriteCity");
+
+            if (favoriteCity) {
+                const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(favoriteCity)}`;
+                fetch(geoUrl)
+                    .then(response => response.json())
+                    .then(geoData => {
+                        const location = geoData.results[0];
+                        getWeather(location.latitude, location.longitude, favoriteCity);
+                    });
+            } else {
+                alert("No favorite city saved.");
+            }
+        });
+
+        // Auto show fav city stats
+        window.onload = function () {
+            const favoriteCity = localStorage.getItem("favoriteCity");
+            if (favoriteCity) {
+                const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(favoriteCity)}`;
+                fetch(geoUrl)
+                    .then(response => response.json())
+                    .then(geoData => {
+                        const location = geoData.results[0];
+                        getWeather(location.latitude, location.longitude, favoriteCity);
+                    });
+            }
+        };
+        // Auto show fav city stats and 5 minute auto refresh
+    window.onload = function () {
+        const favoriteCity = localStorage.getItem("favoriteCity");
+        if (favoriteCity) {
+            const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(favoriteCity)}`;
+            fetch(geoUrl)
+                .then(response => response.json())
+                .then(geoData => {
+                    const location = geoData.results[0];
+                    getWeather(location.latitude, location.longitude, favoriteCity);
+                });
+        }
+
+        // 5 minute refresh for favorite city
+        setInterval(() => {
+            const favoriteCity = localStorage.getItem("favoriteCity");
+            if (favoriteCity) {
+                const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(favoriteCity)}`;
+                fetch(geoUrl)
+                    .then(response => response.json())
+                    .then(geoData => {
+                        const location = geoData.results[0];
+                        getWeather(location.latitude, location.longitude, favoriteCity);
+                    });
+            }
+        }, 300000); // 300000 ms = 5 minutes
+    };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "dev2",
+  "version": "1.0.0",
+  "description": "xd",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/k1aShiMa/zlatko_js.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/k1aShiMa/zlatko_js/issues"
+  },
+  "homepage": "https://github.com/k1aShiMa/zlatko_js#readme",
+  "dependencies": {
+    "csurf": "^1.10.0",
+    "express": "^5.1.0",
+    "ws": "^8.18.1"
+  }
+}
