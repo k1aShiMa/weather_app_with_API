@@ -2,6 +2,8 @@
 
 A simple weather application built with HTML, CSS, JavaScript, and Node.js that allows users to check the current weather for any city by entering the city name. It also includes a feature to save a favorite city for quick access.
 
+You need internet access to utilize every feature.
+
 Features
 City Search: Users can search for the weather of any city by entering its name.
 
