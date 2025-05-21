@@ -16,6 +16,24 @@ body {
     color: #1e293b;
 }
 
+       .weather-icon {
+            font-size: 48px;
+            color: #0077be;
+        }
+        #cityCounterBox {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f0f8ff;
+    border: 1px solid #0077be;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #0077be;
+    box-shadow: 0 0 6px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
 h2 {
     margin-bottom: 30px;
     color: #0f172a;

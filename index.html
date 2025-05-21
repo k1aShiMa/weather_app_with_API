@@ -7,12 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
-    <style>
-        .weather-icon {
-            font-size: 48px;
-            color: #0077be;
-        }
-    </style>
 </head>
 
 <body>
@@ -21,6 +15,11 @@
     <input type="text" id="cityInput" placeholder="Enter city name (e.g. Budapest)">
     <button id="getWeather" type="button">Get Weather</button>
     <button id="getFavoriteWeather" type="button">Favorite City Weather</button>
+
+    <div id="cityCounterBox">
+        <strong>Viewing:</strong> <span id="cityCounter">0</span> people
+    </div>
+    
 
     <div id="weatherResult" style="margin-top: 20px;"></div>
 
@@ -117,7 +116,7 @@
                     <h3>Current Weather in ${sanitizedCityName}</h3>
                     <i class="wi ${iconClass} weather-icon"></i>
                     <ul>
-                        <li>Temperature: ${w.temperature} °C</li>
+                        <li>Temperature: ${w.temperature} Â°C</li>
                         <li>Wind Speed: ${w.windspeed} km/h</li>
                         <li>Time: ${w.time}</li>
                         <li>Weather Code: ${w.weathercode}</li>
