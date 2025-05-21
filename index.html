@@ -24,6 +24,29 @@
     <div id="weatherResult" style="margin-top: 20px;"></div>
 
     <script>
+
+        const cityCounter = document.getElementById('cityCounter');
+    const socket = new WebSocket('ws://localhost:3000'); // Update port if needed
+
+    socket.addEventListener('message', function (event) {
+        const data = JSON.parse(event.data);
+        if (data.type === 'viewerCount') {
+            cityCounter.textContent = data.count;
+        }
+    });
+
+    socket.addEventListener('open', () => {
+        console.log('Connected to WebSocket server');
+    });
+
+    socket.addEventListener('close', () => {
+        console.log('Disconnected from WebSocket server');
+        cityCounter.textContent = '0';
+    });
+
+    socket.addEventListener('error', (err) => {
+        console.error('WebSocket error:', err);
+    });
         // XSS protection: Sanitize user input to prevent XSS attacks
         function sanitize(input) {
             const div = document.createElement('div');
